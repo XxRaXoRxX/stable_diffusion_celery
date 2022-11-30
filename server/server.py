@@ -1,6 +1,6 @@
 import socket, pickle, sys
 from celery import Celery
-
+import base64
 from concurrent.futures import ThreadPoolExecutor, wait, as_completed
 from server_config import ServerConfig as config
 # setting path
@@ -14,6 +14,8 @@ class Constants():
     DISCONNECT = "is disconnected."
     DISCONNECT_CLIENT = "exit"
     CONFIG = "Can configure server in server_config.py"
+    SENDING_IMAGE = "Sending image to client:"
+    FINISH = "Image sent successfully."
     
 
 class Main():
@@ -26,19 +28,32 @@ class Main():
         print(f"|| {address[0]}:{address[1]}", Constants.CONNECT, "||")
 
         while True:
+            # Get prompt from client
             data = socket.recv(1024)
             decode = pickle.loads(data)
             print(f"<< {address[0]}:{address[1]} prompt:", decode, ">>")
 
-            # Desconectar al cliente
+            # Disconnect client.
             if (decode == "exit"):
                 encode = pickle.dumps(Constants.DISCONNECT_CLIENT)
                 socket.send(encode)
                 print(f"|| {address[0]}:{address[1]}", Constants.DISCONNECT, "||")
                 break
 
-            encode = pickle.dumps("Recibido.")
-            socket.send(encode)
+            # Send image to client
+            print("<<", Constants.SENDING_IMAGE, f" {address[0]}:{address[1]} >>")
+
+            img = open("./images/test_image.jpg", 'rb')
+            while True:
+                print("reading readline")
+                send = img.read(8192)
+                print("sending")
+                if not send:
+                    print("<<", Constants.FINISH, f" {address[0]}:{address[1]} >>")
+                    socket.send(Constants.FINISH.encode('utf-8'))
+                    break
+                #encode = pickle.dumps(send)
+                socket.send(send)
 
     # Server Starter
     def Server(self):
