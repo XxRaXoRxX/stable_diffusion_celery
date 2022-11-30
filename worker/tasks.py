@@ -1,11 +1,9 @@
-# Parte del Celery:
-# La funcion_calculo podrá ser una de las siguientes:
-# -raiz: calcula la raíz cuadrada del elemento.
-# -pot: calcula la potencia del elemento elevado a si mismo.
-# -log: calcula el logaritmo decimal de cada elemento.
 from celery import Celery
+from os import path, system
+import sys
+sys.path.append('/repositories/stable-diffusion/scripts')
 
-app = Celery('tasks', broker='redis://127.0.0.1', backend='redis://127.0.0.1')
+app = Celery('tasks', broker='redis://127.0.0.1:6379', backend='redis://127.0.0.1:6379')
 
 @app.task
 def GetImage(prompt):
@@ -13,5 +11,8 @@ def GetImage(prompt):
 
     args:
         - prompt: Text to transform in image."""
+
+    print(system(f"dir"))
+    #system(f"txt2img.py --prompt {prompt} --plms")
 
     return prompt

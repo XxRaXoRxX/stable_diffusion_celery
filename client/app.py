@@ -52,6 +52,11 @@ class Main():
                     print("Disconnected from server.")
                     break
 
+            data = socket.recv(8192)
+            print(pickle.loads(data))
+
+            continue
+
             # Receive image from server
             folder = './images/' + answer + ".jpg"
             archive = open(folder,'wb')
