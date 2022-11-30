@@ -1,4 +1,4 @@
-# Avtivate virtual environment.
+# Activate virtual environment.
 source bin/activate
 
 # Run Server.

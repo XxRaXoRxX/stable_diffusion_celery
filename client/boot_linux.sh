@@ -2,4 +2,4 @@
 source bin/activate
 
 # Run Celery.
-python3 run_linux.py
+python3 app.py

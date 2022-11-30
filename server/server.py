@@ -12,6 +12,7 @@ class Constants():
     START = "Server Started in:"
     CONNECT = "is connected."
     DISCONNECT = "is disconnected."
+    DISCONNECT_CLIENT = "exit"
     CONFIG = "Can configure server in server_config.py"
     
 
@@ -22,21 +23,26 @@ class Main():
     # Server runner
     def handle(self, socket, address):
         # Show Address.
-        print(address, Constants.CONNECT)
+        print(f"|| {address[0]}:{address[1]}", Constants.CONNECT, "||")
 
         while True:
             data = socket.recv(1024)
             decode = pickle.loads(data)
+            print(f"<< {address[0]}:{address[1]} prompt:", decode, ">>")
 
             # Desconectar al cliente
             if (decode == "exit"):
-                encode = pickle.dumps(Constants.DISCONNECT)
+                encode = pickle.dumps(Constants.DISCONNECT_CLIENT)
                 socket.send(encode)
+                print(f"|| {address[0]}:{address[1]}", Constants.DISCONNECT, "||")
                 break
+
+            encode = pickle.dumps("Recibido.")
+            socket.send(encode)
 
     # Server Starter
     def Server(self):
-        address = (config.HOST, config.PORT)
+        address = (config.HOST, int(config.PORT))
         executor = ThreadPoolExecutor(max_workers = config.THREAD)
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -45,7 +51,7 @@ class Main():
             s.bind(address)
             s.listen(config.MAX_CLIENTS)
 
-            print(Constants.START, config.HOST, config.PORT)
+            print(Constants.START, f"{config.HOST}:{config.PORT}")
             print(Constants.CONFIG)
             
             while True:
