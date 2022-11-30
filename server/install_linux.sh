@@ -1,3 +1,6 @@
+# Download virtualenv
+pip3 install virtualenv
+
 # Create virtual environment
 python3 -m venv .
 source bin/activate
