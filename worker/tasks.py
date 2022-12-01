@@ -11,6 +11,6 @@ def GetImage(prompt):
     args:
         - prompt: Text to transform in image."""
 
-    #system(f"./repositories/stable-diffusion/scripts/txt2img.py --prompt {prompt} --plms --outdir ./images/ --ckpt ./model/model.ckpt ")
+    system(f'python ./optimizedSD/optimized_txt2img.py --prompt "{prompt}" --ckpt ../../model/model.ckpt --H 512 --W 512 --n_samples 1')
 
     return prompt

@@ -7,6 +7,10 @@ start /B /WAIT %UserProfile%\miniconda.exe /InstallationType=JustMe /AddToPath=0
 echo Deleting installer.
 del %UserProfile%\miniconda.exe
 
+echo Running conda and creating environment
+call %UserProfile%\miniconda3\Scripts\activate.bat
+conda create --name ldm
+
 ::echo "Updating miniconda"
 ::call %UserProfile%\miniconda3\Scripts\activate.bat
 ::conda update -n base -c defaults conda
