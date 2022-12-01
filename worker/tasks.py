@@ -1,7 +1,6 @@
 from celery import Celery
 from os import path, system
 import sys
-sys.path.append('/repositories/stable-diffusion/scripts')
 
 app = Celery('tasks', broker='redis://127.0.0.1:6379', backend='redis://127.0.0.1:6379')
 
@@ -12,7 +11,6 @@ def GetImage(prompt):
     args:
         - prompt: Text to transform in image."""
 
-    print(system(f"dir"))
-    #system(f"txt2img.py --prompt {prompt} --plms")
+    #system(f"./repositories/stable-diffusion/scripts/txt2img.py --prompt {prompt} --plms --outdir ./images/")
 
     return prompt
