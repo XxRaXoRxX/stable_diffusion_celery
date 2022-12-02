@@ -131,3 +131,4 @@ dmypy.json
 # Stable Diffusion
 *.ckpt
 worker/repositories/stable-diffusion/
+*.png

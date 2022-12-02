@@ -1,4 +1,4 @@
-import socket, pickle, sys
+import socket, pickle, sys, os, base64
 from celery import Celery
 from datetime import date
 from concurrent.futures import ThreadPoolExecutor, wait, as_completed
@@ -13,8 +13,11 @@ class Constants():
     CONNECT = "is connected."
     DISCONNECT = "is disconnected."
     CONFIG = "Can configure server in server_config.py"
-    SENDING_IMAGE = "Sending image to client:"
+    SENDING_IMAGE = "Sending image to client..."
     FINISH = "Image sent successfully."
+    REDIS = "Sending prompt to redis..."
+    SAVE_IMAGE = "Saving image in server..."
+    ERROR = "Error to create image."
 
     # Client sincronization
     DISCONNECT_CLIENT = "exit"
@@ -30,37 +33,42 @@ class Main():
 
         while True:
             # Get prompt from client
-            decode = self.__getSocketData(socket)
+            prompt = self.__getSocketData(socket)
 
-            self.__printMsg(decode, address)
+            self.__printMsg("prompt: " + prompt, address)
 
             # Disconnect client.
-            if (decode == "exit"):
+            if (prompt == "exit"):
                 self.__sendSocketData(socket, Constants.DISCONNECT_CLIENT)
                 self.__printMsg(Constants.DISCONNECT, address, True)
                 break
 
             # Send message to redis.
-            print("Sending to redis...")
-            result = self.__sendRedis(decode)
-            print(result)
+            self.__printMsg(Constants.REDIS, address)
+            image = self.__sendRedis(prompt)
 
+            # Save Image
+            self.__printMsg(Constants.SAVE_IMAGE, address)
+            self.__saveImage(image, prompt)
+            
             self.__sendSocketData(socket, "Recibido")
 
-            continue
             # Send image to client
-            self.__printMsg(Constants.SENDING_IMAGE, address)
-            img = open(f"{config.FOLDER_IMG}/{date.today()}{decode}.jpg", 'rb')
-            while True:
-                print("reading readline")
-                send = img.read(8192)
-                print("sending")
-                if not send:
-                    self.__printMsg(Constants.FINISH, address)
-                    socket.send(Constants.FINISH.encode('utf-8'))
-                    break
-                #encode = pickle.dumps(send)
-                socket.send(send)
+            # if (result != None):
+            #     self.__printMsg(Constants.SENDING_IMAGE, address)
+            #     img = open(f"{config.FOLDER_IMG}/{date.today()}{decode}.jpg", 'rb')
+            #     while True:
+            #         print("reading readline")
+            #         send = img.read(8192)
+            #         print("sending")
+            #         if not send:
+            #             self.__printMsg(Constants.FINISH, address)
+            #             socket.send(Constants.FINISH.encode('utf-8'))
+            #             break
+            #         #encode = pickle.dumps(send)
+            #         socket.send(send)
+            # else:
+            #     self.__sendSocketData(socket, Constants.ERROR)
 
     # Server Starter
     def __server(self):
@@ -117,7 +125,7 @@ class Main():
             - connection (bool): If is a connection message.
         """
         if (connection):
-            print(f"<< {address[0]}:{address[1]} prompt:", msg, ">>")
+            print(f"<< {address[0]}:{address[1]}", msg, ">>")
         else:
             print(f"|| {address[0]}:{address[1]}", msg, "||")
 
@@ -130,6 +138,29 @@ class Main():
         """
         result = GetImage.delay(prompt)
         return result.get()
+
+    def __saveImage(self, image, prompt):
+        """
+        Save image in server.
+
+        Args:
+            - prompt (str): Prompt to send.
+            - image (str): Image encoded in Celery.
+            - prompt (str): Prompt to create image.
+        """
+
+        print("save image")
+        # Decode image
+        image = image.encode()
+        image = base64.b64decode(image)
+
+        print("image decoded")
+        # Save image
+        folder = str(prompt).replace(' ', '_')
+        folder = f'./images/{folder}/{date.today()}.png'
+        os.makedirs(os.path.dirname(folder), exist_ok=True)
+        with open(folder,'wb') as f:
+            f.write(image)
 
 # Runear server.
 if __name__ == '__main__':
