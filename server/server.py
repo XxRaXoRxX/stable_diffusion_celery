@@ -14,13 +14,13 @@ class Constants():
     DISCONNECT = "is disconnected."
     CONFIG = "Can configure server in server_config.py"
     SENDING_IMAGE = "Sending image to client..."
-    FINISH = "Image sent successfully."
     REDIS = "Sending prompt to redis..."
     SAVE_IMAGE = "Saving image in server..."
     ERROR = "Error to create image."
 
     # Client sincronization
     DISCONNECT_CLIENT = "exit"
+    FINISH = "Image sent successfully."
 
 class Main():
     def main(self):
@@ -48,27 +48,17 @@ class Main():
             image = self.__sendRedis(prompt)
 
             # Save Image
-            self.__printMsg(Constants.SAVE_IMAGE, address)
-            self.__saveImage(image, prompt)
-            
-            self.__sendSocketData(socket, "Recibido")
+            if (image != None): 
+                self.__printMsg(Constants.SAVE_IMAGE, address)
+                self.__saveImage(image, prompt)
+            else:
+                self.__printMsg(Constants.ERROR, address)
+                self.__sendSocketData(socket, Constants.ERROR)
+                continue
 
-            # Send image to client
-            # if (result != None):
-            #     self.__printMsg(Constants.SENDING_IMAGE, address)
-            #     img = open(f"{config.FOLDER_IMG}/{date.today()}{decode}.jpg", 'rb')
-            #     while True:
-            #         print("reading readline")
-            #         send = img.read(8192)
-            #         print("sending")
-            #         if not send:
-            #             self.__printMsg(Constants.FINISH, address)
-            #             socket.send(Constants.FINISH.encode('utf-8'))
-            #             break
-            #         #encode = pickle.dumps(send)
-            #         socket.send(send)
-            # else:
-            #     self.__sendSocketData(socket, Constants.ERROR)
+            # Send image to client.
+            self.__printMsg(Constants.SENDING_IMAGE, address)
+            self.__sendImage(socket, prompt, address)
 
     # Server Starter
     def __server(self):
@@ -148,19 +138,39 @@ class Main():
             - image (str): Image encoded in Celery.
             - prompt (str): Prompt to create image.
         """
-
-        print("save image")
         # Decode image
         image = image.encode()
         image = base64.b64decode(image)
 
-        print("image decoded")
         # Save image
         folder = str(prompt).replace(' ', '_')
-        folder = f'./images/{folder}/{date.today()}.png'
+        folder = f'{config.FOLDER_IMG}{folder}/{date.today()}.png'
         os.makedirs(os.path.dirname(folder), exist_ok=True)
         with open(folder,'wb') as f:
             f.write(image)
+
+    def __sendImage(self, socket, prompt, address):
+        """
+        Send image to client.
+        """
+        folder = str(prompt).replace(' ', '_')
+        folder = f'{config.FOLDER_IMG}{folder}/'
+        
+        for file in os.listdir(folder):
+            print(file)
+            img = open(f"{folder}{file}", 'rb')
+
+        while True:
+            send = img.read(8192)
+
+            if not send:
+                self.__printMsg(Constants.FINISH, address)
+                socket.send(Constants.FINISH.encode('utf-8'))
+                break
+
+            socket.send(send)
+
+        img.close()
 
 # Runear server.
 if __name__ == '__main__':

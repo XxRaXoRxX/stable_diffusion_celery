@@ -8,5 +8,5 @@ class ServerConfig:
     THREAD = 10
     # How much clients can connect in same time.
     MAX_CLIENTS = 10
-    # Server image folder.
+    # Server image folder. default is "./images/"
     FOLDER_IMG = "./images/"

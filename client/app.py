@@ -7,7 +7,7 @@ class Constants():
     SERVER_CONNECT = "A connection was successfully established with the server:"
     EXIT = "Write *exit* to quit server connection."
     INSERT = "Insert prompt: "
-    FINISH = "Image received successfully."
+    FINISH = "Image received successfully in folder: "
 
     # Server sincronization
     DISCONNECT = "exit"
@@ -24,12 +24,12 @@ class Main():
 
         if (self.__server != ""):
             if (self.__port != ""):
-                self.client()
+                self.__client()
                 return
 
         print(Constants.ARGUMENT_ERROR, self.__server)
 
-    def client(self):
+    def __client(self):
         # Connect to server
         socket = s.socket(s.AF_INET, s.SOCK_STREAM)
         socket.connect((self.__server, int(self.__port)))
@@ -52,25 +52,30 @@ class Main():
                     print("Disconnected from server.")
                     break
 
+            # Get image from server
+            self.__getImage(socket, answer)
+            
+
+    def __getImage(self, socket, prompt):
+        """
+            Receive image from server.
+        """
+        folder = f'{config.FOLDER_IMG}{prompt}.png'
+        archive = open(folder,'wb')
+
+        while True:
             data = socket.recv(8192)
-            print(pickle.loads(data))
+            print(data.decode('utf-8', 'ignore') + "\n")
 
-            continue
+            if data.decode('utf-8', 'ignore') == Constants.FINISH_IMG:
+                print(Constants.FINISH, folder)
+                break
 
-            # Receive image from server
-            folder = './images/' + answer + ".jpg"
-            archive = open(folder,'wb')
-            while True:
-                data = socket.recv(8192)
-                if data.decode('utf-8', 'ignore') == Constants.FINISH_IMG:
-                    print(Constants.FINISH, folder)
-                    break
-                #decode = pickle.loads(data)
-                archive.write(data)
-            archive.close()
+            archive.write(data)
 
-            
-            
+        archive.close()
+
+
 # Run Client
 if __name__=="__main__":
     main = Main()
