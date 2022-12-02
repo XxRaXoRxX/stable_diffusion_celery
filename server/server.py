@@ -17,10 +17,10 @@ class Constants():
     REDIS = "Sending prompt to redis..."
     SAVE_IMAGE = "Saving image in server..."
     ERROR = "Error to create image."
+    FINISH = "Image sent successfully."
 
     # Client sincronization
     DISCONNECT_CLIENT = "exit"
-    FINISH = "Image sent successfully."
 
 class Main():
     def main(self):
@@ -160,15 +160,12 @@ class Main():
             print(file)
             img = open(f"{folder}{file}", 'rb')
 
-        while True:
-            send = img.read(8192)
+        send = img.read()
+        socket.sendall(send)
 
-            if not send:
-                self.__printMsg(Constants.FINISH, address)
-                socket.send(Constants.FINISH.encode('utf-8'))
-                break
-
-            socket.send(send)
+        # Send finish message
+        self.__printMsg(Constants.FINISH, address)
+        socket.send(Constants.DISCONNECT_CLIENT.encode())
 
         img.close()
 

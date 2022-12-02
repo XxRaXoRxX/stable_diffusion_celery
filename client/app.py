@@ -5,13 +5,13 @@ class Constants():
     # Client
     ARGUMENT_ERROR = "Server or Port can not be null:"
     SERVER_CONNECT = "A connection was successfully established with the server:"
+    SERVER_CONNECT_ERROR = "Cannot connect the computer to the server:"
     EXIT = "Write *exit* to quit server connection."
     INSERT = "Insert prompt: "
     FINISH = "Image received successfully in folder: "
 
     # Server sincronization
     DISCONNECT = "exit"
-    FINISH_IMG = "Image sent successfully."
 
 class Main():
 
@@ -32,7 +32,13 @@ class Main():
     def __client(self):
         # Connect to server
         socket = s.socket(s.AF_INET, s.SOCK_STREAM)
-        socket.connect((self.__server, int(self.__port)))
+
+        try:
+            socket.connect((self.__server, int(self.__port)))
+        except:
+            print(f"{Constants.SERVER_CONNECT_ERROR} {self.__server}:{self.__port}")
+            return
+
         print(f"{Constants.SERVER_CONNECT} {self.__server}:{self.__port}")
 
         print(Constants.EXIT) # Print how to exit server.
@@ -65,9 +71,8 @@ class Main():
 
         while True:
             data = socket.recv(8192)
-            print(data.decode('utf-8', 'ignore') + "\n")
 
-            if data.decode('utf-8', 'ignore') == Constants.FINISH_IMG:
+            if data.decode('utf-8', "ignore").endswith(Constants.DISCONNECT):
                 print(Constants.FINISH, folder)
                 break
 
