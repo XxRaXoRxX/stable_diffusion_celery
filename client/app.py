@@ -9,6 +9,7 @@ class Constants():
     EXIT = "Write *exit* to quit server connection."
     INSERT = "Insert prompt: "
     FINISH = "Image received successfully in folder: "
+    EMPTY = "Can't send empty messages. Try again."
 
     # Server sincronization
     DISCONNECT = "exit"
@@ -45,6 +46,10 @@ class Main():
         while True:
             # User input
             answer = input(Constants.INSERT)
+
+            if not answer or answer.isspace():
+                print(Constants.EMPTY)
+                continue
 
             # Send promt to server
             encode = pickle.dumps(answer)

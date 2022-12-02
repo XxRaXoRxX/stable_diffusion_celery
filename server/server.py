@@ -17,7 +17,7 @@ class Constants():
     REDIS = "Sending prompt to redis..."
     SAVE_IMAGE = "Saving image in server..."
     ERROR = "Error to create image."
-    FINISH = "Image sent successfully."
+    FINISH = "Image sent successfully:"
 
     # Client sincronization
     DISCONNECT_CLIENT = "exit"
@@ -43,18 +43,23 @@ class Main():
                 self.__printMsg(Constants.DISCONNECT, address, True)
                 break
 
-            # Send message to redis.
-            self.__printMsg(Constants.REDIS, address)
-            image = self.__sendRedis(prompt)
+            # Check if prompt is in data base.
+            imgInDB = self.__checkImage(prompt)
 
-            # Save Image
-            if (image != None): 
-                self.__printMsg(Constants.SAVE_IMAGE, address)
-                self.__saveImage(image, prompt)
-            else:
-                self.__printMsg(Constants.ERROR, address)
-                self.__sendSocketData(socket, Constants.ERROR)
-                continue
+            # Send prompt to Celery Worker.
+            if (imgInDB == False):
+                # Send message to redis.
+                self.__printMsg(Constants.REDIS, address)
+                image = self.__sendRedis(prompt)
+
+                # Save Image
+                if (image != None): 
+                    self.__printMsg(Constants.SAVE_IMAGE, address)
+                    self.__saveImage(image, prompt)
+                else:
+                    self.__printMsg(Constants.ERROR, address)
+                    self.__sendSocketData(socket, Constants.ERROR)
+                    continue
 
             # Send image to client.
             self.__printMsg(Constants.SENDING_IMAGE, address)
@@ -157,17 +162,30 @@ class Main():
         folder = f'{config.FOLDER_IMG}{folder}/'
         
         for file in os.listdir(folder):
-            print(file)
             img = open(f"{folder}{file}", 'rb')
 
         send = img.read()
         socket.sendall(send)
 
         # Send finish message
-        self.__printMsg(Constants.FINISH, address)
+        self.__printMsg(f"{Constants.FINISH} {file}",  address)
         socket.send(Constants.DISCONNECT_CLIENT.encode())
 
         img.close()
+
+    def __checkImage(self, prompt):
+        """
+        Check if prompt is in data base.
+
+        Args:
+            - prompt (str): Prompt to send.
+
+        Returns:
+            - bool: True if prompt is in data base.
+        """
+        folder = str(prompt).replace(' ', '_')
+        folder = f'{config.FOLDER_IMG}{folder}/'
+        return os.path.exists(folder)
 
 # Runear server.
 if __name__ == '__main__':

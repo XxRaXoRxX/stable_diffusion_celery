@@ -15,7 +15,7 @@ def GetImage(prompt):
 
     # Get Image
     folder = str(prompt).replace(' ', '_')
-    folder = f'./outputs/txt2img-samples/{folder}/'
+    folder = f'./outputs/txt2img-samples/{folder[:126]}/'
 
     for file in listdir(folder):
         with open(f"{folder}{file}", 'rb') as f:
