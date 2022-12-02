@@ -149,7 +149,7 @@ class Main():
 
         # Save image
         folder = str(prompt).replace(' ', '_')
-        folder = f'{config.FOLDER_IMG}{folder}/{date.today()}.png'
+        folder = f'{config.FOLDER_IMG}{folder[:200]}/{date.today()}.png'
         os.makedirs(os.path.dirname(folder), exist_ok=True)
         with open(folder,'wb') as f:
             f.write(image)
@@ -159,7 +159,7 @@ class Main():
         Send image to client.
         """
         folder = str(prompt).replace(' ', '_')
-        folder = f'{config.FOLDER_IMG}{folder}/'
+        folder = f'{config.FOLDER_IMG}{folder[:200]}/'
         
         for file in os.listdir(folder):
             img = open(f"{folder}{file}", 'rb')
@@ -184,7 +184,7 @@ class Main():
             - bool: True if prompt is in data base.
         """
         folder = str(prompt).replace(' ', '_')
-        folder = f'{config.FOLDER_IMG}{folder}/'
+        folder = f'{config.FOLDER_IMG}{folder[:200]}/'
         return os.path.exists(folder)
 
 # Runear server.

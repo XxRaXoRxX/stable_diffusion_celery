@@ -71,7 +71,7 @@ class Main():
         """
             Receive image from server.
         """
-        folder = f'{config.FOLDER_IMG}{prompt}.png'
+        folder = f'{config.FOLDER_IMG}{prompt[:200]}.png'
         archive = open(folder,'wb')
 
         while True:
