@@ -1,5 +1,6 @@
 # Activate virtual environment.
-source bin/activate
+source $HOME/miniconda3/bin/activate
+conda activate ldm
 
 # Run Celery.
 python3 app.py
