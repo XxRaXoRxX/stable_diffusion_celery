@@ -1,4 +1,4 @@
-import socket as s, pickle
+import socket as s, pickle, os
 from client_config import ClientConfig as config
 
 class Constants():
@@ -71,6 +71,11 @@ class Main():
         """
             Receive image from server.
         """
+        folder_exists = os.path.exists(config.FOLDER_IMG)
+        
+        if not folder_exists:
+            os.makedirs(config.FOLDER_IMG)
+
         folder = f'{config.FOLDER_IMG}{prompt[:200]}.png'
         archive = open(folder,'wb')
 
