@@ -11,7 +11,7 @@ def GetImage(prompt):
     args:
         - prompt: Text to transform in image."""
 
-    system(f'python ./optimizedSD/optimized_txt2img.py --prompt "{prompt}" --ckpt ../../model/model.ckpt --H 512 --W 512 --n_samples 1')
+    system(f'python ./optimizedSD/optimized_txt2img.py --prompt "{prompt}" --ckpt ../../model/sd-v1-4.ckpt --H 512 --W 512 --n_samples 1')
 
     # Get Image
     folder = str(prompt).replace(' ', '_')

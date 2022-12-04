@@ -1,4 +1,4 @@
-read -p "Are you installed miniconda and create miniconda env? [Y/n] " -ei "y" response
+read -p "Are you installed miniconda and create miniconda env? [Y/n] "
 response=${response,,}  # convert to lowercase
 case $response in
     y|ye|yes)
