@@ -28,7 +28,7 @@ class Main():
                 self.__client()
                 return
 
-        print(Constants.ARGUMENT_ERROR, self.__server)
+        print(Constants.ARGUMENT_ERROR, f"{self.__server}:{self.__port}")
 
     def __client(self):
         # Connect to server

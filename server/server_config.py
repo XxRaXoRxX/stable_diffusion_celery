@@ -6,7 +6,7 @@ class ServerConfig:
     PORT = "5555"
     # Server threads for clients comunication.
     THREAD = 10
-    # How much clients can connect in same time.
+    # How much clients can connect in same time (handshake).
     MAX_CLIENTS = 10
     # Server image folder. default is "./images/"
     FOLDER_IMG = "./images/"
